@@ -1,7 +1,8 @@
+import { NotificationNull } from './customtypes';
 import { userRoles } from './enums';
 import { User } from './user';
 
-interface notification {
+export interface notification {
   id: number;
   SendBy: number;
   SendTo: number;
@@ -11,13 +12,15 @@ interface notification {
 }
 
 export class Notification {
+  constructor(private _user: User) {}
+
   static Notifications: notification[] = [];
 
-  static getAllNotifications(): notification[] {
+  getAllNotifications(): notification[] {
     return Notification.Notifications;
   }
 
-  static getNotificationById(id: number): notification | null {
+  getNotificationById(id: number): NotificationNull {
     let notification = Notification.Notifications.find((n) => n.id === id);
     if (notification) {
       return notification;
@@ -25,15 +28,15 @@ export class Notification {
     return null;
   }
 
-  static getNotificationsBySendTo(sendTo: number): notification[] {
+  getNotificationsBySendTo(sendTo: number): notification[] {
     return Notification.Notifications.filter((n) => n.SendTo === sendTo);
   }
 
-  static getNotificationsBySendBy(sendBy: number): notification[] {
+  getNotificationsBySendBy(sendBy: number): notification[] {
     return Notification.Notifications.filter((n) => n.SendBy === sendBy);
   }
 
-  static getNotificationsBySendByAndSendTo(
+  getNotificationsBySendByAndSendTo(
     sendBy: number,
     sendTo: number
   ): notification[] {
@@ -42,22 +45,25 @@ export class Notification {
     );
   }
 
-  static sendNotification(notification: notification): boolean {
+  sendNotification(notification: notification): boolean {
     if (notification.SendTo == 0) {
-        const sender = User.getUserById(notification.SendBy);
-        if(sender != null && (sender!.role != userRoles.STUDENT && sender!.role != userRoles.TEACHER)){
-            let users = User.Users;
-            for (let user of users) {
-              if (user.id != notification.SendBy) {
-                notification.SendTo = user.id;
-                Notification.Notifications.push(notification);
-              }
-            }
-            return true;
+      const sender = this._user.getUserById(notification.SendBy);
+      if (
+        sender != null &&
+        sender!.role != userRoles.STUDENT &&
+        sender!.role != userRoles.TEACHER
+      ) {
+        let users = User.Users;
+        for (let user of users) {
+          if (user.id != notification.SendBy) {
+            notification.SendTo = user.id;
+            Notification.Notifications.push(notification);
+          }
         }
-        else{
-            return false;
-        }
+        return true;
+      } else {
+        return false;
+      }
     } else {
       Notification.Notifications.push(notification);
       return true;
