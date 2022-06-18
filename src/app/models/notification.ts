@@ -1,0 +1,66 @@
+import { userRoles } from './enums';
+import { User } from './user';
+
+interface notification {
+  id: number;
+  SendBy: number;
+  SendTo: number;
+  Message: string;
+  IsRead: boolean;
+  CreatedAt: Date;
+}
+
+export class Notification {
+  static Notifications: notification[] = [];
+
+  static getAllNotifications(): notification[] {
+    return Notification.Notifications;
+  }
+
+  static getNotificationById(id: number): notification | null {
+    let notification = Notification.Notifications.find((n) => n.id === id);
+    if (notification) {
+      return notification;
+    }
+    return null;
+  }
+
+  static getNotificationsBySendTo(sendTo: number): notification[] {
+    return Notification.Notifications.filter((n) => n.SendTo === sendTo);
+  }
+
+  static getNotificationsBySendBy(sendBy: number): notification[] {
+    return Notification.Notifications.filter((n) => n.SendBy === sendBy);
+  }
+
+  static getNotificationsBySendByAndSendTo(
+    sendBy: number,
+    sendTo: number
+  ): notification[] {
+    return Notification.Notifications.filter(
+      (n) => n.SendBy === sendBy && n.SendTo === sendTo
+    );
+  }
+
+  static sendNotification(notification: notification): boolean {
+    if (notification.SendTo == 0) {
+        const sender = User.getUserById(notification.SendBy);
+        if(sender != null && (sender!.role != userRoles.STUDENT && sender!.role != userRoles.TEACHER)){
+            let users = User.Users;
+            for (let user of users) {
+              if (user.id != notification.SendBy) {
+                notification.SendTo = user.id;
+                Notification.Notifications.push(notification);
+              }
+            }
+            return true;
+        }
+        else{
+            return false;
+        }
+    } else {
+      Notification.Notifications.push(notification);
+      return true;
+    }
+  }
+}
