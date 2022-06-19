@@ -1,0 +1,19 @@
+<div class="container">
+    <div class="row">
+            <nav class="nav">
+                <div class="col">
+                    <a class="nav-link btn" routerLink="/" routerLinkActive="active">Home</a>
+                    <a class="nav-link btn" routerLink="/about" routerLinkActive="active">About</a>
+                </div>
+
+                <div class="col">
+                    
+                    <a *ngIf="!isUserLoggedIn" class="nav-link btn" routerLink="/Login" routerLinkActive="active">Login</a>
+                    <a *ngIf="isUserLoggedIn" class="nav-link btn" (click)="LogoutUser()" routerLinkActive="active">Logout</a>
+
+                </div>
+                
+                
+            </nav>
+    </div>
+</div>
