@@ -1,3 +1,4 @@
+import { CryptoService } from '../services/crypto.service';
 import { UserNull } from './customtypes';
 import { userRoles } from './enums';
 
@@ -30,75 +31,45 @@ export class User {
             updatedAt: new Date(),
             isActive: true,
             isDeleted: false,
-            password: User.getPasswordHash("admin", salt),
+            password: CryptoService.getPasswordHash("admin", salt),
             role: userRoles.ADMIN,
             salt: salt
         }
     }
   }
 
-  private static getPasswordHash(password: string, salt: string): string {
-    const crypto = require('crypto');
-    return crypto
-      .createHash('sha256')
-      .update(password + salt)
-      .digest('hex');
+  getUserById(id: number): UserNull {
+    let user = User.Users.find(u => u.id == id);
+    return user==undefined?null:user;
   }
 
-  private static isUserExist(id:number): boolean {
-    let user = User.Users.find((u) => u.id === id);
-    if (user) {
-      return true;
-    }
-    return false;
-  }
-
-  updateUser(user: user): boolean {
-    if(User.isUserExist(user.id)){
-      let userIndex = User.Users.findIndex((u) => u.id === user.id);
-      User.Users[userIndex] = user;
-      User.Users[userIndex].updatedAt = new Date();
-      return true;
-    }
-    return false;
-    
-  }
-   getUserById(id: number): UserNull {
-    let user = User.Users.find((u) => u.id === id);
-    if (user) {
-      return user;
-    }
-    return null;
-  }
-
-   getUserByEmail(email: string): UserNull {
-    let user = User.Users.find((u) => u.email === email);
-    if (user) {
-      return user;
-    }
-    return null;
-  }
-
-   getAllUsers(): user[] {
+  getUsers(): UserNull[] {
     return User.Users;
   }
 
-   deactivateUser(id: number): boolean {
-    let user = User.Users.find((u) => u.id === id);
-    if (user) {
-      user.isActive = false;
-      return true;
-    }
-    return false;
+  addUser(user: user): void {
+    User.Users.push(user);
   }
 
-   deleteUser(id: number): boolean {
-    let user = User.Users.find((u) => u.id === id);
-    if (user) {
-      user.isActive = false;
-      user.isDeleted = true;
-      return true;
-    }
-    return false;
+  updateUser(user: user): void {
+    let index = User.Users.findIndex(u => u.id == user.id);
+    User.Users[index].firstName = user.firstName;
+    User.Users[index].lastName = user.lastName;
+    User.Users[index].updatedAt = new Date();
+  }
+
+  deleteUser(id: number): void {
+    let index = User.Users.findIndex(u => u.id == id);
+    User.Users[index].isActive = false;
+    User.Users[index].isDeleted = true;
+    User.Users[index].updatedAt = new Date();
+  }
+
+  changePassword(id: number, password: string): void {
+    let index = User.Users.findIndex(u => u.id == id);
+    let salt = Math.random().toString();
+    User.Users[index].password = CryptoService.getPasswordHash(password, salt);
+    User.Users[index].salt = salt;
+    User.Users[index].updatedAt = new Date();
   }
 }

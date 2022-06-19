@@ -1,6 +1,6 @@
-import { NumberNull } from "./customtypes";
+import { NumberNull, StudentTeacherNull } from "./customtypes";
 
-interface studentteacher{
+export interface studentteacher{
     id: number;
     standard: number;
     teacherID: NumberNull;
@@ -12,55 +12,28 @@ interface studentteacher{
 export class StudentTeacher{
     static StudentTeachers: studentteacher[] = [];
 
-    isStudentAccepted(studentID: number): boolean{
-        let studentTeacher = StudentTeacher.StudentTeachers.find(st => st.studentID === studentID);
-        if(studentTeacher){
-            return true;
-        }
-        return false;
+    getStudentTeacherById(id: number): StudentTeacherNull {
+        let studentteacher = StudentTeacher.StudentTeachers.find(
+            n => n.id == id
+        );
+        return studentteacher == undefined ? null : studentteacher;
     }
 
-     isTeacherAssigned(teacherID: number): boolean{
-        let studentTeacher = StudentTeacher.StudentTeachers.find(st => st.teacherID === teacherID);
-        if(studentTeacher){
-            return true;
-        }
-        return false;
+    getStudentTeachers(): StudentTeacherNull[] {
+        return StudentTeacher.StudentTeachers;
     }
 
-     getTeacherByStandard(standard: number): number{
-        return StudentTeacher.StudentTeachers.find(st => st.standard === standard)?.teacherID!;
+    addStudentTeacher(studentteacher: studentteacher): void {
+        StudentTeacher.StudentTeachers.push(studentteacher);
     }
 
-     acceptStudent(studentID: number,standard:number): boolean{
-        if(!this.isStudentAccepted(studentID) && this.isTeacherAssigned(standard)){
-            let studentTeacher = {
-                id: StudentTeacher.StudentTeachers.length + 1,
-                standard: standard,
-                teacherID: this.getTeacherByStandard(standard),
-                studentID: studentID,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            }
-            StudentTeacher.StudentTeachers.push(studentTeacher);
-            return true;
-        }
-        return false;
-    }
-
-     assignTeacher(teacherID: number,standard:number): boolean{
-        if(!this.isTeacherAssigned(teacherID) ){
-            let studentTeacher = {
-                id: StudentTeacher.StudentTeachers.length + 1,
-                standard: standard,
-                teacherID: teacherID,
-                studentID: null,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            }
-            StudentTeacher.StudentTeachers.push(studentTeacher);
-            return true;
-        }
-        return false;
+    updateStudentTeacher(studentteacher: studentteacher): void {
+        let index = StudentTeacher.StudentTeachers.findIndex(
+            n => n.id == studentteacher.id
+        );
+        StudentTeacher.StudentTeachers[index].teacherID = studentteacher.teacherID;
+        StudentTeacher.StudentTeachers[index].studentID = studentteacher.studentID;
+        StudentTeacher.StudentTeachers[index].standard = studentteacher.standard;
+        StudentTeacher.StudentTeachers[index].updatedAt = new Date();
     }
 }

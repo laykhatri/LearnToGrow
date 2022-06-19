@@ -1,5 +1,4 @@
 import { NotificationNull } from './customtypes';
-import { userRoles } from './enums';
 import { User } from './user';
 
 export interface notification {
@@ -16,57 +15,25 @@ export class Notification {
 
   static Notifications: notification[] = [];
 
-  getAllNotifications(): notification[] {
+  getNotificationById(id: number): NotificationNull {
+    let notification = Notification.Notifications.find(
+      n => n.id == id
+    );
+    return notification == undefined ? null : notification;
+  }
+
+  getNotifications(): NotificationNull[] {
     return Notification.Notifications;
   }
 
-  getNotificationById(id: number): NotificationNull {
-    let notification = Notification.Notifications.find((n) => n.id === id);
-    if (notification) {
-      return notification;
-    }
-    return null;
+  addNotification(notification: notification): void {
+    Notification.Notifications.push(notification);
   }
 
-  getNotificationsBySendTo(sendTo: number): notification[] {
-    return Notification.Notifications.filter((n) => n.SendTo === sendTo);
-  }
-
-  getNotificationsBySendBy(sendBy: number): notification[] {
-    return Notification.Notifications.filter((n) => n.SendBy === sendBy);
-  }
-
-  getNotificationsBySendByAndSendTo(
-    sendBy: number,
-    sendTo: number
-  ): notification[] {
-    return Notification.Notifications.filter(
-      (n) => n.SendBy === sendBy && n.SendTo === sendTo
+  updateNotification(notification: notification): void {
+    let index = Notification.Notifications.findIndex(
+      n => n.id == notification.id
     );
-  }
-
-  sendNotification(notification: notification): boolean {
-    if (notification.SendTo == 0) {
-      const sender = this._user.getUserById(notification.SendBy);
-      if (
-        sender != null &&
-        sender!.role != userRoles.STUDENT &&
-        sender!.role != userRoles.TEACHER
-      ) {
-        let users = User.Users;
-        for (let user of users) {
-          if (user.id != notification.SendBy) {
-            notification.SendTo = user.id;
-            Notification.Notifications.push(notification);
-          }
-        }
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      Notification.Notifications.push(notification);
-      return true;
-    }
+    Notification.Notifications[index].IsRead = notification.IsRead;
   }
 }
